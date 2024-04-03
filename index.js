@@ -1,7 +1,9 @@
 const express = require("express");
 require("dotenv").config();
 const { registerController } = require("./controllers/registerController");
-
+const { loginController } = require("./controllers/loginController");
+const { verifyToken } = require("./middlewares/tokenMiddleware");
+const { verifyAdminToken } = require("./middlewares/verifyAdminToken");
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
@@ -21,3 +23,11 @@ app.get("/", (req, res) => {
 
 //routes
 app.post("/register", registerController);
+
+app.use("/login", loginController);
+
+app.use("/user", verifyToken, require("./routes/user"));
+
+app.use("admin", verifyAdminToken, require("./routes/admin"));
+
+app.use("/course", require("./routes/course"));

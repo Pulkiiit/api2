@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const { queryDatabase } = require("../config/dbConnect");
+const { cloudinary } = require("../config/cloudinary");
 
 const checkPasswordStrength = password => {
   if (password.length < 8) {
@@ -31,12 +32,15 @@ const checkPasswordStrength = password => {
 };
 
 const registerController = async (req, res) => {
-  //missing arguments validation
+  //missing arguments check
+
   try {
     const requiredArguments = ["username", "password", "email"];
+
     const missingArguments = requiredArguments.filter(
-      arg => !(arg in req.body)
+      arg => !(arg in req.body) || !req.body[arg]
     );
+
     if (missingArguments.length > 0) {
       return res.status(400).json({
         message: `Missing required arguments: ${missingArguments.join(", ")}`,
@@ -44,8 +48,10 @@ const registerController = async (req, res) => {
     }
 
     const { username, email, password } = req.body;
+    const { image } = req.file;
 
     //email uniqueness check
+
     const exisitngUser = await queryDatabase(
       `SELECT * FROM users WHERE email = $1`,
       [email]
@@ -57,28 +63,38 @@ const registerController = async (req, res) => {
         .json({ error: "User with this email already exists." });
     }
 
-    //password stringth check
+    //password strength check
+
     const passwordStrength = checkPasswordStrength(password);
+
     if (passwordStrength !== "Password strength is sufficient") {
       return res.status(400).json({
         error: passwordStrength,
       });
     }
 
-    //creating user
-    const newUser = await queryDatabase(
-      `INSERT INTO users (username, password, email) VALUES ($1,$2,$3)`,
-      [username, password, email]
-    );
-    if (newUser.rowCount === 1) {
+    //creating user also hashing password
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    if (image) {
+      const { secure_url } = await cloudinary.uploader.upload(image.path);
+      await queryDatabase(
+        `INSERT INTO users (username, password, email, image) VALUES ($1,$2,$3,$4)`,
+        [username, hashedPassword, email, secure_url]
+      );
       return res.status(200).json({ message: "User created successfully" });
     } else {
-      return res.status(400).json({ err: "Failed to create user" });
+      await queryDatabase(
+        `INSERT INTO users (username, password, email) VALUES ($1,$2,$3)`,
+        [username, hashedPassword, email]
+      );
+      return res.status(200).json({ message: "User created successfully" });
     }
   } catch (err) {
     console.error(err);
+
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-module.exports = { registerController };
+module.exports = { registerController, checkPasswordStrength };
