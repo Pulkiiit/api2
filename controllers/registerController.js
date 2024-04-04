@@ -4,6 +4,8 @@ const { cloudinary } = require("../config/cloudinary");
 const { sendEmail } = require("../helper/sendEmail");
 
 const checkPasswordStrength = password => {
+  // ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$
+  // regex for same as above
   if (password.length < 8) {
     return "Password must be at least 8 characters long";
   }
