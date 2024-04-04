@@ -7,8 +7,14 @@ const {
   deleteCourse,
 } = require("../controllers/adminController");
 
-router.get("/read", getCourseDetails);
-router.post("/create", createCourse);
+const { argumentCheck } = require("../middlewares/argumentCheck");
+
+router.get("/read", argumentCheck(["id"]), getCourseDetails);
+router.post(
+  "/create",
+  argumentCheck(["name", "description", "category", "level"]),
+  createCourse
+);
 router.put("/update", updateCourse);
 router.delete("/delete", deleteCourse);
 

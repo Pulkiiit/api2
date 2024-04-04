@@ -3,19 +3,6 @@ const { jwt } = require("jsonwebtoken");
 const { queryDatabase } = require("../config/dbConnect");
 const loginController = async (req, res) => {
   try {
-    // required arguments check
-    const requiredArguments = ["username", "password"];
-
-    const missingArguments = requiredArguments.filter(
-      arg => !(arg in req.body) || !req.body[arg]
-    );
-
-    if (missingArguments.length > 0) {
-      return res.status(400).json({
-        message: `Missing required arguments: ${missingArguments.join(", ")}`,
-      });
-    }
-
     const { email, password } = req.body;
 
     // cehck if user exists

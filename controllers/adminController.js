@@ -1,18 +1,6 @@
 const { queryDatabase } = require("../config/dbConnect");
 const getCourseDetails = async (req, res) => {
   try {
-    const requiredArguments = ["id"];
-
-    const missingArguments = requiredArguments.filter(
-      arg => !(arg in req.body) || !req.body[arg]
-    );
-
-    if (missingArguments.length > 0) {
-      return res.status(400).json({
-        message: `Missing required arguments: ${missingArguments.join(", ")}`,
-      });
-    }
-    //
     const id = req.body.id;
     const data = await queryDatabase("SELECT * FROM courses WHERE id = $1", [
       id,
@@ -26,18 +14,6 @@ const getCourseDetails = async (req, res) => {
 
 const createCourse = async (req, res) => {
   try {
-    const requiredArguments = ["name", "description", "category", "level"];
-
-    const missingArguments = requiredArguments.filter(
-      arg => !(arg in req.body) || !req.body[arg]
-    );
-
-    if (missingArguments.length > 0) {
-      return res.status(400).json({
-        message: `Missing required arguments: ${missingArguments.join(", ")}`,
-      });
-    }
-    //
     const { name, description, category, level } = req.body;
     await queryDatabase(
       "INSERT INTO courses (name, description,category,level) VALUES ($1, $2, $3, $4) RETURNING *",

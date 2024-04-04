@@ -36,18 +36,6 @@ const registerController = async (req, res) => {
   //missing arguments check
 
   try {
-    const requiredArguments = ["username", "password", "email"];
-
-    const missingArguments = requiredArguments.filter(
-      arg => !(arg in req.body) || !req.body[arg]
-    );
-
-    if (missingArguments.length > 0) {
-      return res.status(400).json({
-        message: `Missing required arguments: ${missingArguments.join(", ")}`,
-      });
-    }
-
     const { username, email, password } = req.body;
     const { image } = req.file;
 

@@ -4,6 +4,7 @@ const { registerController } = require("./controllers/registerController");
 const { loginController } = require("./controllers/loginController");
 const { verifyToken } = require("./middlewares/tokenMiddleware");
 const { verifyAdminToken } = require("./middlewares/verifyAdminToken");
+const { argumentCheck } = require("./middlewares/argumentCheck");
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
@@ -22,9 +23,13 @@ app.get("/", (req, res) => {
 });
 
 //routes
-app.post("/register", registerController);
+app.post(
+  "/register",
+  argumentCheck(["username", "email", "password"]),
+  registerController
+);
 
-app.use("/login", loginController);
+app.post("/login", argumentCheck(["email", "password"]), loginController);
 
 app.use("/user", verifyToken, require("./routes/user"));
 
