@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const { queryDatabase } = require("../config/dbConnect");
 const { cloudinary } = require("../config/cloudinary");
+const { sendEmail } = require("../helper/sendEmail");
 
 const checkPasswordStrength = password => {
   if (password.length < 8) {
@@ -88,6 +89,7 @@ const registerController = async (req, res) => {
         `INSERT INTO users (username, password, email) VALUES ($1,$2,$3)`,
         [username, hashedPassword, email]
       );
+      await sendEmail("register", email, {});
       return res.status(200).json({ message: "User created successfully" });
     }
   } catch (err) {

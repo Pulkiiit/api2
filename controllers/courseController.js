@@ -1,5 +1,5 @@
 const { queryDatabase } = require("../config/dbConnect");
-
+const { sendEmail } = require("../helper/sendEmail");
 const getCourseDetails = async (req, res) => {
   try {
     const { category, level, page, pageSize } = req.params;
@@ -42,6 +42,13 @@ const enrollCourse = async (req, res) => {
       "INSERT INTO enrollemnts (user_id, course_id) VALUES ($1, $2)",
       [user_id, course_id]
     );
+
+    const course_name = await queryDatabase(
+      "SELECT name FROM courses WHERE id = $1",
+      [course_id]
+    );
+    await sendEmail(verifiedEmail, "enrollment", { course: course_name });
+    return res.status(200).json({ message: "Successfull" });
   } catch (err) {
     if (err.code === "23505") {
       //constraint violation

@@ -59,8 +59,10 @@ const updateUserDetails = async (req, res) => {
         return res.status(400).json({
           message: checkPasswordStrength(password),
         });
+      } else {
+        // verify through email
+        userData.password = password;
       }
-      userData.password = password;
     }
     await queryDatabase(
       "UPDATE users SET username = $1, email = $2, password = $3, image = $4 WHERE email = $5",
