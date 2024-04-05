@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+const { resend } = require("resend");
 
 const sendEmail = async (topic, to, data) => {
   try {
