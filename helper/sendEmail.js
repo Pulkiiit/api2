@@ -23,4 +23,4 @@ const sendEmail = async (topic, to, data) => {
   }
 };
 
-export default { sendEmail };
+module.exports = { sendEmail };
